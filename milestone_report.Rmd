@@ -9,13 +9,13 @@ output: html_document
 
 This report is part of the Coursera data science capstone project of predicting text. The following sections explain data loading and sampling, cleaning and text mining of the HC Copora.  This report presents a basic report of summary statistics about the dataset and the charasristics of the sample text. Last, the plan for creating a prediction algorithm and Shiny app is outlined.
 
-## Data processing
+## Data Pre-processing
 
 The training dataset (https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip) is from a corpus called HC Corpora (www.corpora.heliohost.org). See the readme file at http://www.corpora.heliohost.org/aboutcorpus.html for details on the corpora available.
 
 ### Loading datasets
 
-```{r}
+```{r eval=FALSE}
 zipURL <- "http://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
 if (!file.exists("Coursera-SwiftKey.zip")) 
     download.file(zipURL, destfile = "Coursera-SwiftKey.zip")
@@ -109,3 +109,87 @@ corpus<-tm_map(corpus, stripWhitespace)
 corpus<-tm_map(corpus, removeWords, profanity)
 ```
 
+We will use a word cloud to visualize the sample corpus.
+```{r}
+library(wordcloud)
+wordcloud(corpus, scale=c(5,0.5), max.words=100, 
+          random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+## Tokenization and Exploratory Analysis
+
+### Build n-gram models
+
+Next, the sample corpus is tokenized to build basic n-gram models. Given that the final product will have to be hosted on Shiny with limited resource, we chose to build 3 basic models - unigram, bigram and trigram. 
+
+```{r}
+library(tau)
+unigrams <- textcnt(sample_df, method="string",n=1,split = "[[:space:]]+", decreasing=TRUE)
+unigrams <- data.frame(freq = unclass(unigrams))
+bigrams <- textcnt(sample_df, method="string",n=2,split = "[[:space:]]+", decreasing=TRUE)
+bigrams <- data.frame(freq = unclass(bigrams))
+trigrams <- textcnt(sample_df, method="string",n=3,split = "[[:space:]]+", decreasing=TRUE)
+trigrams <- data.frame(freq = unclass(trigrams))
+
+tokenize_ngrams <- function(x, n=3) {
+    return(textcnt(x,method="string",n=n,decreasing=TRUE))}
+unigrams <- tokenize_ngrams(sample_df,n=1)
+bigrams <- tokenize_ngrams(sample_df,n=2)
+trigrams <- tokenize_ngrams(sample_df,n=3)
+```
+
+Several R packages were tested for extracting n-grams from the complete corpus:
+
+- `NgramTokenizer` (package `RWeka`) 
+- `textcnt` (package `tau`) 
+- `ngram` (package `ngram`)
+
+Relatively speaking, `textcnt` from R-package `tau` has the best performance and was our final pick.
+
+### Frequency count on n-grams
+
+Frequency tables were constructed for each of the n-gram models. 
+
+```{r}
+## construct frequency tables
+freq_tb <- function(txtcnt){
+    return(data.frame(word=rownames(as.data.frame(unclass(txtcnt))),
+                      freq=unclass(txtcnt)))}
+unigramFreq <- freq_tb(unigrams)
+bigramFreq <- freq_tb(bigrams)
+trigramFreq <- freq_tb(trigrams)
+```
+
+Below are the exploratory analysis on the most frequent unigrams, bigrams and trigrams in the sample text.
+
+```{r echo=F}
+## plot ngram distribution
+library(ggplot2)
+ggplot(head(unigramFreq,20), aes(x=reorder(word,freq), y=freq, fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() +
+    coord_flip() +
+    theme(axis.title.y = element_blank()) +
+    labs(y="Frequency", title="Most Frequent Unigrams in Sample Text")
+
+ggplot(head(bigramFreq,20), aes(x=reorder(word,freq), y=freq, fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() +
+    coord_flip() +
+    theme(axis.title.y = element_blank()) +
+    labs(y="Frequency", title="Most Frequent Bigrams in Sample Text")
+
+ggplot(head(trigramFreq,20), aes(x=reorder(word,freq), y=freq, fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() +
+    coord_flip() +
+    theme(axis.title.y = element_blank()) +
+    labs(y="Frequency", title="Most Frequent Trigrams in Sample Text")
+```
+
+## Prediction strategies and plans for Shiny app
+
+To make predictions, the n-gram model with a frequency table can be used based. A straightforward prediction algorithm is to start with the trigram model to find the most likely next word. If none is found, then the bigram model is used. If still no match, then the unigram model, i.e. the most possible word irregardly of context is suggested. The text entry from the use might need the same cleaning that was performed on training data to increase chances of match.
+
+The Shiny app will have a simple user interface where the user can enter a string of English text. Then the prediction model will echo the text entered by the user and suggest top 5 most-likely words as the next word.
