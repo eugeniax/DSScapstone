@@ -23,7 +23,12 @@ lines_blogs <- length(blogs)
 lines_news <- length(news)
 lines_twitter <- length(twitter)
 
-
-str_count("one,   two three 4,,,, 5 6", "\\S+")
+## sampling
+set.seed(123)
+sampleBlogs <- sample(blogs, length(blogs)*0.01)
+sampleNews <- sample(news, length(news)*0.01)
+sampleTw <- sample(twitter, length(twitter)*0.01)
+sampleText <- c(sampleBlogs,sampleNews,sampleTw)
+length(sampleText)
 
 ## clean up
