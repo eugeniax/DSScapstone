@@ -16,7 +16,6 @@ twitter <- readLines("./final/en_US/en_US.twitter.txt", encoding="UTF-8", skipNu
 
 ## summarize training data
 library(stringr)
-library(ggplot2)
 size_blogs <- file.size("./final/en_US/en_US.blogs.txt")/1024^2
 size_news <- file.size("./final/en_US/en_US.news.txt")/1024^2
 size_twitter <- file.size("./final/en_US/en_US.twitter.txt")/1024^2
@@ -48,6 +47,15 @@ sampleTw <- sample(twitter, length(twitter)*0.01)
 sampleText <- c(sampleBlogs,sampleNews,sampleTw)
 length(sampleText)
 
+## save & load
+# save(blogs, file="blogs.RData")
+# save(news, file="news.RData")
+# save(twitter, file="twitter.RData")
+# save(sampleText,file="sampleRaw.RData")
+# load("blogs.RData")
+# load("news.RData")
+# load("twitter.RData")
+
 ## clean up
 library(RWeka)
 library(tm)
@@ -68,6 +76,7 @@ corpus<-tm_map(corpus, removeNumbers)
 corpus<-tm_map(corpus, stripWhitespace)
 corpus<-tm_map(corpus, removeWords, profanity)
 #inspect(corpus[1:3])
+# save(corpus,file="corpus.RData")
 
 library(wordcloud)
 wordcloud(corpus, scale=c(5,0.5), max.words=100, 
@@ -75,7 +84,7 @@ wordcloud(corpus, scale=c(5,0.5), max.words=100,
           colors=brewer.pal(8, "Dark2"))
 
 ## ngrams
-
+# #op1: too slow
 # sample_df <- data.frame(text=unlist(sapply(corpus, '[',"content")),stringsAsFactors=F)
 # token_delim <- " \\t\\r\\n.!?,;\"()"
 # UnigramTokenizer <- NGramTokenizer(sample_df, Weka_control(min=1,max=1))
@@ -90,6 +99,63 @@ wordcloud(corpus, scale=c(5,0.5), max.words=100,
 # bigramTable <- bigramTable[order(bigramTable$Freq,decreasing = TRUE),]
 # trigramTable <- trigramTable[order(trigramTable$Freq,decreasing = TRUE),]
 
+#op2
+# ## Support Tokenization for bigrams and trigrams (Create functions off NGramTokenizer)
+# UnigramTokenizer <- function(x) NGramTokenizer(x, control = Weka_control(min = 1, max = 1))
+# BigramTokenizer  <- function(x) NGramTokenizer(x, control = Weka_control(min = 2, max = 2))
+# TrigramTokenizer <- function(x) NGramTokenizer(x, control = Weka_control(min = 3, max = 3))
+# ## Create the term document matrices for unigrams, bigrams and trigrams
+# tdmUnigram <- TermDocumentMatrix(corpus, control = list(tokenize = UnigramTokenizer))
+# tf <- sort(rowSums(as.matrix(tdmUnigram)), decreasing=TRUE)
+# tdmUnigram <- data.frame(term=names(tf), frequency=tf)
+# tdmBigram <- TermDocumentMatrix(corpus, control = list(tokenize = BigramTokenizer))
+# tf2 <- sort(rowSums(as.matrix(tdmBigram)), decreasing=TRUE)
+# tdmBigram <- data.frame(term=names(tf2), frequency=tf2)
+# tdmTrigram <- TermDocumentMatrix(x = corpus, control = list(tokenize = TrigramTokenizer))
+# tf3 <- sort(rowSums(as.matrix(tdmTrigram)), decreasing=TRUE)
+# tdmTrigram <- data.frame(term=names(tf3), frequency=tf3)
 
-BigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
-tdm <- TermDocumentMatrix(crude, control = list(tokenize = BigramTokenizer))
+#op3
+library(tau)
+unigrams <- textcnt(sample_df, method="string",n=1,split = "[[:space:]]+", decreasing=TRUE)
+unigrams <- data.frame(freq = unclass(unigrams))
+bigrams <- textcnt(sample_df, method="string",n=2,split = "[[:space:]]+", decreasing=TRUE)
+bigrams <- data.frame(freq = unclass(bigrams))
+trigrams <- textcnt(sample_df, method="string",n=3,split = "[[:space:]]+", decreasing=TRUE)
+trigrams <- data.frame(freq = unclass(trigrams))
+
+tokenize_ngrams <- function(x, n=3) {
+    return(textcnt(x,method="string",n=n,decreasing=TRUE))}
+unigrams <- tokenize_ngrams(sample_df,n=1)
+bigrams <- tokenize_ngrams(sample_df,n=2)
+trigrams <- tokenize_ngrams(sample_df,n=3)
+
+freq_tb <- function(txtcnt){
+    return(data.frame(word=rownames(as.data.frame(unclass(txtcnt))),
+                      freq=unclass(txtcnt)))}
+unigramFreq <- freq_tb(unigrams)
+bigramFreq <- freq_tb(bigrams)
+trigramFreq <- freq_tb(trigrams)
+
+## plot ngram distribution
+library(ggplot2)
+ggplot(head(unigramFreq,20), aes(x=reorder(word,freq), y=freq, fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() +
+    coord_flip() +
+    theme(axis.title.y = element_blank()) +
+    labs(y="Frequency", title="Most Frequent Unigrams in Sampled Text")
+
+ggplot(head(bigramFreq,20), aes(x=reorder(word,freq), y=freq, fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() +
+    coord_flip() +
+    theme(axis.title.y = element_blank()) +
+    labs(y="Frequency", title="Most Frequent Bigrams in Sampled Text")
+
+ggplot(head(trigramFreq,20), aes(x=reorder(word,freq), y=freq, fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() +
+    coord_flip() +
+    theme(axis.title.y = element_blank()) +
+    labs(y="Frequency", title="Most Frequent Trigrams in Sampled Text")
