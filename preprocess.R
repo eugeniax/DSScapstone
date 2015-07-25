@@ -117,13 +117,13 @@ wordcloud(corpus, scale=c(5,0.5), max.words=100,
 
 #op3
 library(tau)
-unigrams <- textcnt(sample_df, method="string",n=1,split = "[[:space:]]+", decreasing=TRUE)
-unigrams <- data.frame(freq = unclass(unigrams))
-bigrams <- textcnt(sample_df, method="string",n=2,split = "[[:space:]]+", decreasing=TRUE)
-bigrams <- data.frame(freq = unclass(bigrams))
-trigrams <- textcnt(sample_df, method="string",n=3,split = "[[:space:]]+", decreasing=TRUE)
-trigrams <- data.frame(freq = unclass(trigrams))
-
+# unigrams <- textcnt(sample_df, method="string",n=1,split = "[[:space:]]+", decreasing=TRUE)
+# unigrams <- data.frame(freq = unclass(unigrams))
+# bigrams <- textcnt(sample_df, method="string",n=2,split = "[[:space:]]+", decreasing=TRUE)
+# bigrams <- data.frame(freq = unclass(bigrams))
+# trigrams <- textcnt(sample_df, method="string",n=3,split = "[[:space:]]+", decreasing=TRUE)
+# trigrams <- data.frame(freq = unclass(trigrams))
+sample_df <- data.frame(text=unlist(sapply(corpus, '[',"content")),stringsAsFactors=F)
 tokenize_ngrams <- function(x, n=3) {
     return(textcnt(x,method="string",n=n,decreasing=TRUE))}
 unigrams <- tokenize_ngrams(sample_df,n=1)
