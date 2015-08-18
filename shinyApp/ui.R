@@ -2,36 +2,35 @@ suppressWarnings(library(shiny))
 
 shinyUI(fluidPage(
     
-    # Application title
-    titlePanel("Predict Next Word"),
+    # title and top instruction
+    titlePanel("Next Word Predictor"),
     
-    fluidRow(HTML("<strong>Author: Rumi, RI</strong>") ),
-    fluidRow(HTML("<strong>Date: 12-Dec-2014</strong>") ),
-    
+    fluidRow(strong("Capstone Project for Coursera Data Science 
+                    Specialization") ),    
     fluidRow(
         br(),
-        p("This Shiny application uses N-Gram Back Off model to predict next unseen word in the user entered words sequence. In a separate data processing phase twitter, news and blogs data 
-          was consumed, and then cleansed to create data frames of four, three, two and one-grams with corresponding sorted cumulative frequencies. 
-          The Shiny app loads the four saved n-gram objects and apply a simple Katz's Back-off algorithm to predict the next word after user enters a partial sentence.")),
-    br(),
+        p("This Shiny app takes an input from users and uses a simple ngram back-off model to predict next word. 
+          HC Corpora is pre-processed to build the frequency dictionary that is then loaded to Shiny app at runtime.
+          The Shiny app will provide a few suggested words, if available, besides the predicted next word to ease user experience.")),
     br(),
   
-    fluidRow(HTML("<strong>Enter an incomplete sentence. Press \"Next Word\" button to predict the next word</strong>") ),
-    fluidRow( p("\n") ),
+    fluidRow(strong("Enter at least 2 words. Press \"Next Word\" button to predict the next word.") ),
+    br(),
     
     # Sidebar layout
-    sidebarLayout(
-        
+    sidebarLayout(        
         sidebarPanel(
-            textInput("inputString", "Enter a partial sentence here",value = ""),
+            textInput("inText", "Enter your text here",value = ""),
             submitButton("Next Word")
         ),
         
         mainPanel(
             h4("Predicted Next Word"),
-            verbatimTextOutput("prediction"),
-            textOutput('text1'),
-            textOutput('text2')
+            textOutput('predWd'),
+            h5("Other possible next words may be"),
+            textOutput('sugWd'),
+            h4("You have entered:"),
+            textOutput('repInText')
         )
     )
 ))
