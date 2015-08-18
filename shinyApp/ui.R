@@ -20,7 +20,7 @@ shinyUI(fluidPage(
     # Sidebar layout
     sidebarLayout(        
         sidebarPanel(
-            textInput("inText", "Enter your text here",value = ""),
+            textInput("inText", "Enter your text here",value = "input text..."),
             submitButton("Next Word")
         ),
         
