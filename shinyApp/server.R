@@ -14,7 +14,9 @@ shinyServer(function(input, output) {
     })
     
     output$sugWd <- renderText ({
-        if (length(predWdList())>1) {
+        if (length(predWdList())>4) {
+            paste(predWdList()[2:4], sep=", ")
+        } else {
             paste(predWdList()[2:length(predWdList())], sep=", ")
         }
     })

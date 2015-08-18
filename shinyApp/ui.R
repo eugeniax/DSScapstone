@@ -25,11 +25,11 @@ shinyUI(fluidPage(
         ),
         
         mainPanel(
-            h4("Predicted Next Word"),
+            h3("Predicted Next Word:"),
             textOutput('predWd'),
-            h5("Other possible next words may be"),
+            h4("Other suggested words:"),
             textOutput('sugWd'),
-            h4("You have entered:"),
+            h3("You have entered:"),
             textOutput('repInText')
         )
     )

@@ -28,7 +28,7 @@ PredNextWord <- function (inText) {
     }
     leadWd <- paste(leadWd[1],leadWd[2],sep = ' ')
     if(leadWd == ''|leadWd == "NA NA") 
-        stop('no valid text input')
+        warning ('no valid text input yet')
     
     triSearch <- grepl(paste0("^",leadWd," "),triFreq$word)
     if (sum(triSearch)==0) {
