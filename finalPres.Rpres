@@ -1,0 +1,34 @@
+Coursera/Swiftkey Capstone Predictive Text Model
+========================================================
+author: Eugenia
+date: August 2015
+
+The Challenge
+========================================================
+
+The goal for Coursera Data Science Capstone project is to build an app that predicts the next word based on user input, similar to Swiftkey. 
+
+
+
+How does the App work
+========================================================
+
+The UI design was in
+
+
+Behind the Scene - ngram freqency tables
+========================================================
+
+from a corpus - HC Corpora (www.corpora.heliohost.org)
+
+
+Behind the Scene - prediction model
+========================================================
+
+A simple back-off model was built for the purpose of next-word prediction. Starting with trigram, if the last 2 words from user's input match the first 2 words in the trigram, then a list of 3rd words ordered by frequency is returned. The top item is the predicted next word and, if available, upto 3 more words are also displaced as suggested words. In the case of no match in trigrams, the model resolves to look for the last word from user in bigrams. If still no match, the model returns the most common unigram.
+
+We had chosen this simple back-off algorithm for the following reasons:
+
+- computationally inexpensive
+- easy and straightforward to implement
+- relatively decent accuracy
