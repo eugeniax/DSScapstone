@@ -50,8 +50,9 @@ PredNextWord <- function (inText) {
         # found match in trigram
         pred <- triFreq[triSearch,]        
     }
-    nextWd <- strsplit(as.character(pred[,"word"]),split=paste0(leadWd," "))
-    # words are in nextWd[[n]][2], so convert to dataframe and transpose
-    nextWd <- unname(t(data.frame(nextWd)))[,2]
+#     nextWd <- strsplit(as.character(pred[,"word"]),split=paste0(leadWd," "))
+#     # words are in nextWd[[n]][2], so convert to dataframe and transpose
+#     nextWd <- unname(t(data.frame(nextWd)))[,2]
+    nextWd <- gsub(paste0(leadWd," "), "", as.character(pred[,"word"]))
     return(nextWd)
 }
