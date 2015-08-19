@@ -6,20 +6,39 @@ date: August 2015
 The Challenge
 ========================================================
 
-The goal for Coursera Data Science Capstone project is to build an app that predicts the next word based on user input, similar to Swiftkey. 
+The objective of Coursera Data Science Capstone project is to build an Shiny app that predicts the next word based on user input, very similar to Swiftkey, a predictive keyboard on mobile phones. 
+
+While text prediction is well established topic under natual language process, given the running environment and app usage, this project strives to achieve a few additional goals:
+
+- lean - limited memory and processing resources on shiny.io server
+- fast - users expect instant result as they type
+- intuitive - easy to use on small mobile phone screens  
+- accurate - trained on large text database
 
 
-
-How does the App work
+How the App Works
 ========================================================
 
-The UI design was in
+The UI was designed to be as simple as possible to resemble a mobile phone interface. 
+
+**Input panel on the left**
+
+User simply type into a text box, then press 'Enter' on the keyboard or 'Submit' button
+
+**Output panel on the right**
+
+The user input is first echoed to assure the user that the app has received the correct input.
+
+The predicted next word will be displayed in large blue font.
+Upto 3 more words will be shown below as additional suggested words.
 
 
-Behind the Scene - ngram freqency tables
+Behind the Scene - ngram frequency tables
 ========================================================
 
-from a corpus - HC Corpora (www.corpora.heliohost.org)
+Text corpus was obtained from HC Corpora (www.corpora.heliohost.org), particularly, English news, blogs and twitter. Data cleaning involves lowering cases, removing punctuation, special/non-pritable charaters, whitespaces, numbers and profanity. Specific to twitter, accounts, hashtags and URLs are removed. After comparing prediction performance, stopwords are kept.
+
+Next, 20% sampled corpus was tokenized ionto trigrams, bigrams and unigrams. They were subsequently ordered by decreasing frequency to build ngram frequency tables, which serve as frequency dictionaries for the prediction model.
 
 
 Behind the Scene - prediction model
