@@ -1,9 +1,5 @@
 
-source("./predict.R")
-
-uniFreq <- readRDS(file = "./data/uniFreq.Rds")
-biFreq <- readRDS(file = "./data/biFreq.Rds")
-triFreq <- readRDS(file = "./data/triFreq.Rds")
+source("predict.R")
 
 shinyServer(function(input, output) {
     

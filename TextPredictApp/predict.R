@@ -1,5 +1,9 @@
 library(tm)
 
+uniFreq <- readRDS(file = "uniFreq.Rds")
+biFreq <- readRDS(file = "biFreq.Rds")
+triFreq <- readRDS(file = "triFreq.Rds")
+
 ## clean up input string
 InputCleaner <- function (inText) {
     clnText <- inText

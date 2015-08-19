@@ -24,13 +24,14 @@ shinyUI(fluidPage(
             submitButton("Next Word")
         ),
         
-        mainPanel(
-            h4("Predicted Next Word:"),
-            span(style="color:blue; font-weight:bold",(textOutput('predWd'))),
-            h4("Other suggested words:"),
-            textOutput('sugWd'),
-            h4("You have entered:"),
-            textOutput('repInText')
+        mainPanel(            
+            h5("You have entered:"),
+            span(style="color:red; font-weight:bold",textOutput('repInText')),
+            h5("Predicted Next Word:"),
+            h4(span(style="color:blue; font-weight:bold",(textOutput('predWd')))),
+            h5("Other suggested words:"),
+            h4(span(style="color:blue; font-weight:bold",(textOutput('sugWd'))))
+
         )
     )
 ))
