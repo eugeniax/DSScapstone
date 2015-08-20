@@ -15,22 +15,23 @@ rm(file_news)
 twitter <- readLines("./final/en_US/en_US.twitter.txt", encoding="UTF-8", skipNul=TRUE)
 
 
-## sampling
-set.seed(123)
-sampleBlogs <- sample(blogs, length(blogs)*0.01)
-sampleNews <- sample(news, length(news)*0.01)
-sampleTw <- sample(twitter, length(twitter)*0.01)
-sampleText <- c(sampleBlogs,sampleNews,sampleTw)
-length(sampleText)
-
 ## save & load
 # save(blogs, file="blogs.RData")
 # save(news, file="news.RData")
 # save(twitter, file="twitter.RData")
 # save(sampleText,file="sampleRaw.RData")
-# load("blogs.RData")
-# load("news.RData")
-# load("twitter.RData")
+load("blogs.RData")
+load("news.RData")
+load("twitter.RData")
+
+## sampling
+set.seed(123)
+sampleBlogs <- sample(blogs, length(blogs)*0.2)
+sampleNews <- sample(news, length(news)*0.2)
+sampleTw <- sample(twitter, length(twitter)*0.2)
+sampleText <- c(sampleBlogs,sampleNews,sampleTw)
+length(sampleText)
+#rm(blogs,news,twitter,sampleTw,sampleNews,sampleBlogs)
 
 ## clean up
 library(tm)
@@ -44,6 +45,8 @@ sampleText <- gsub("(f|ht)(tp)(s?)(://)(\\S*)", "", sampleText) #remove URLs (ht
 sampleText <- gsub(" @[^\\s]+","",sampleText) #remove twitter account 
 sampleText <- iconv(sampleText, "latin1", "ASCII", sub=" ") #remove non-printable
 # sampleText <- gsub("[^0-9A-Za-z///' ]", "", sampleText) #remove all non english / non numeric 
+save(sampleText,file="samplecln.RData")
+
 corpus<-Corpus(VectorSource(sampleText))
 corpus<-tm_map(corpus, content_transformer(tolower))
 corpus<-tm_map(corpus, removePunctuation)
@@ -69,19 +72,29 @@ unigrams <- tokenize_ngrams(sample_df,n=1)
 bigrams <- tokenize_ngrams(sample_df,n=2)
 trigrams <- tokenize_ngrams(sample_df,n=3)
 
+save(sample_df,file="sample_df.Rds")
+save(unigrams,file = "unigrams.Rds")
+save(bigrams,file = "bigrams.Rds")
+save(trigrams,file = "trigrams.Rds")
+
 freq_tb <- function(txtcnt){
     return(data.frame(word=rownames(as.data.frame(unclass(txtcnt))),
-                      freq=unclass(txtcnt)))}
+                      freq=unclass(txtcnt),stringsAsFactors=FALSE))}
 unigramFreq <- freq_tb(unigrams)
 bigramFreq <- freq_tb(bigrams)
 trigramFreq <- freq_tb(trigrams)
 
+# save(unigramFreq, file = "unigramFreq.Rds")
+# save(bigramFreq, file = "bigramFreq.Rds")
+# save(trigramFreq, file = "trigramFreq.Rds")
+
 ## trim n-gram tables, then save to Rds files
 library(dplyr)
-uniFreq <- filter(unigramFreq, freq>1)
-biFreq <- filter(bigramFreq, freq>1)
-triFreq <- filter(trigramFreq, freq>1)
+# uniFreq <- filter(unigramFreq, freq>1)
+uniFreq <- unigramFreq[1:100,]
+biFreq <- filter(bigramFreq, freq>2)
+triFreq <- filter(trigramFreq, freq>2)
 
-saveRDS(uniFreq, file = "./data/uniFreq.Rds")
-saveRDS(biFreq, file = "./data/biFreq.Rds")
-saveRDS(triFreq, file = "./data/triFreq.Rds")
+saveRDS(uniFreq, file = "./data20/uniFreq.Rds")
+saveRDS(biFreq, file = "./data20/biFreq.Rds")
+saveRDS(triFreq, file = "./data20/triFreq.Rds")
